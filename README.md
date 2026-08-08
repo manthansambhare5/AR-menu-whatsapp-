@@ -18,7 +18,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      background: #f5f5f5;
       color: #222;
     }
 
@@ -36,20 +36,19 @@
 
     header p {
       margin: 8px 0 0;
-      color: #ddd;
     }
 
     .menu {
-      padding: 15px;
       max-width: 600px;
       margin: auto;
+      padding: 15px;
     }
 
     .food-card {
       background: white;
-      border-radius: 18px;
       margin-bottom: 20px;
       padding: 15px;
+      border-radius: 18px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.12);
     }
 
@@ -66,7 +65,7 @@
     model-viewer {
       width: 100%;
       height: 300px;
-      background: #eeeeee;
+      background: #eee;
       border-radius: 14px;
     }
 
@@ -89,10 +88,6 @@
       padding: 18px;
       border-radius: 18px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.12);
-    }
-
-    .cart h2 {
-      margin-top: 0;
     }
 
     .cart-item {
@@ -139,3 +134,298 @@
 </head>
 
 <body>
+
+<header>
+  <h1>🍽️ AR Food Menu</h1>
+  <p>View your food in AR before ordering</p>
+</header>
+
+<div class="menu">
+
+  <!-- BURGER -->
+  <div class="food-card">
+
+    <h2>🍔 Burger</h2>
+
+    <div class="price">₹120</div>
+
+    <model-viewer
+      src="burger_compressed_25mb.glb"
+      alt="3D Burger"
+      ar
+      camera-controls
+      auto-rotate
+      shadow-intensity="1">
+    </model-viewer>
+
+    <button
+      class="add-button"
+      onclick="addItem('Burger',120)">
+      🛒 Add Burger
+    </button>
+
+  </div>
+
+
+  <!-- JUICE -->
+  <div class="food-card">
+
+    <h2>🥤 Fresh Juice</h2>
+
+    <div class="price">₹80</div>
+
+    <model-viewer
+      src="7d8ad3b7-7254-474f-aefc-1ab51638e10f_dbcc9b7f7a131391594e130269ab4acd.glb"
+      alt="3D Fresh Juice"
+      ar
+      camera-controls
+      auto-rotate
+      shadow-intensity="1">
+    </model-viewer>
+
+    <button
+      class="add-button"
+      onclick="addItem('Fresh Juice',80)">
+      🛒 Add Juice
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- CART -->
+<div class="cart">
+
+  <h2>🛒 Your Order</h2>
+
+  <div id="cartItems">
+    Your cart is empty.
+  </div>
+
+  <div class="total" id="total">
+    Total: ₹0
+  </div>
+
+  <input
+    id="customerName"
+    type="text"
+    placeholder="Enter your name">
+
+  <input
+    id="tableNumber"
+    type="text"
+    placeholder="Enter table number">
+
+  <button
+    class="whatsapp"
+    onclick="sendWhatsApp()">
+    🟢 Order on WhatsApp
+  </button>
+
+</div>
+
+
+<script>
+
+let cart = [];
+
+
+/* ADD ITEM */
+function addItem(name, price) {
+
+  const item = cart.find(
+    product => product.name === name
+  );
+
+  if (item) {
+    item.quantity++;
+  } else {
+    cart.push({
+      name: name,
+      price: price,
+      quantity: 1
+    });
+  }
+
+  updateCart();
+}
+
+
+/* REMOVE ITEM */
+function removeItem(name) {
+
+  const item = cart.find(
+    product => product.name === name
+  );
+
+  if (!item) return;
+
+  item.quantity--;
+
+  if (item.quantity <= 0) {
+    cart = cart.filter(
+      product => product.name !== name
+    );
+  }
+
+  updateCart();
+}
+
+
+/* UPDATE CART */
+function updateCart() {
+
+  const cartBox =
+    document.getElementById("cartItems");
+
+  const totalBox =
+    document.getElementById("total");
+
+  if (cart.length === 0) {
+
+    cartBox.innerHTML =
+      "Your cart is empty.";
+
+    totalBox.innerHTML =
+      "Total: ₹0";
+
+    return;
+  }
+
+  let html = "";
+  let total = 0;
+
+  cart.forEach(item => {
+
+    const subtotal =
+      item.price * item.quantity;
+
+    total += subtotal;
+
+    html += `
+      <div class="cart-item">
+
+        <strong>${item.name}</strong>
+
+        <br>
+
+        ₹${item.price} × ${item.quantity}
+        = ₹${subtotal}
+
+        <br>
+
+        <button
+          class="qty-button"
+          onclick="removeItem('${item.name}')">
+          ➖
+        </button>
+
+        <button
+          class="qty-button"
+          onclick="addItem('${item.name}',${item.price})">
+          ➕
+        </button>
+
+      </div>
+    `;
+  });
+
+  cartBox.innerHTML = html;
+
+  totalBox.innerHTML =
+    "Total: ₹" + total;
+}
+
+
+/* WHATSAPP ORDER */
+function sendWhatsApp() {
+
+  if (cart.length === 0) {
+    alert("Please add an item first.");
+    return;
+  }
+
+  const customerName =
+    document
+      .getElementById("customerName")
+      .value
+      .trim();
+
+  const tableNumber =
+    document
+      .getElementById("tableNumber")
+      .value
+      .trim();
+
+  if (!customerName) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  if (!tableNumber) {
+    alert("Please enter your table number.");
+    return;
+  }
+
+  let total = 0;
+
+  let message =
+    "🍽️ NEW RESTAURANT ORDER\n\n";
+
+  message +=
+    "👤 Name: " +
+    customerName +
+    "\n";
+
+  message +=
+    "🪑 Table: " +
+    tableNumber +
+    "\n\n";
+
+  message +=
+    "📋 ORDER DETAILS\n";
+
+  cart.forEach(item => {
+
+    const subtotal =
+      item.price * item.quantity;
+
+    total += subtotal;
+
+    message +=
+      item.quantity +
+      " × " +
+      item.name +
+      " = ₹" +
+      subtotal +
+      "\n";
+  });
+
+  message +=
+    "\n💰 TOTAL: ₹" +
+    total;
+
+
+  /* RESTAURANT WHATSAPP NUMBER */
+  const restaurantNumber =
+    "918446348928";
+
+
+  const whatsappLink =
+    "https://wa.me/" +
+    restaurantNumber +
+    "?text=" +
+    encodeURIComponent(message);
+
+
+  window.open(
+    whatsappLink,
+    "_blank"
+  );
+}
+
+</script>
+
+</body>
+</html>
