@@ -413,7 +413,7 @@ function sendWhatsApp() {
 
 
   const whatsappLink =
-    "https://wa.me/" +
+    "https://wa.me/918446348928?text=Hello%20I%20want%20to%20place%20an%20order" +
     restaurantNumber +
     "?text=" +
     encodeURIComponent(message);
